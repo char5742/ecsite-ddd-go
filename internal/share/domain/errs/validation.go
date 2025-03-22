@@ -88,6 +88,9 @@ func (v domainValidationResult) ValidationErrors() ValidationErrors {
 }
 
 // 外部データリクエストのインターフェース
+// ワークフローをピュアに保つために、
+// バリデーション時に依存データがある場合は外にリクエストをだすように設計しています
+// 例) 重複チェック, 外部APIの呼び出しなど
 type ExternalDataRequest interface {
 	Key() string
 	Description() string

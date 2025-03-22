@@ -28,6 +28,7 @@ var NewRegisterUserUsecase RegisterUserUsecase = func(IsEmailTaken IsEmailTaken)
 			return nil, fmt.Errorf("ユーザー登録に失敗しました: %w", err)
 		}
 
+		// 必要な外部データリクエストがある場合は、リクエストを処理する
 		for result.HasRequest() {
 			for _, req := range result.ExternalDataRequests() {
 				switch v := req.(type) {
