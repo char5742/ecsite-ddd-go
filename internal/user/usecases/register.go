@@ -1,62 +1,77 @@
 package userusecases
 
 import (
-	shareinterfaces "github.com/char5742/ecsite-ddd-go/internal/share/domain/interfaces"
-	sharetypes "github.com/char5742/ecsite-ddd-go/internal/share/domain/types"
+	"context"
+	"fmt"
+
 	userdomain "github.com/char5742/ecsite-ddd-go/internal/user/domain"
-	usertypes "github.com/char5742/ecsite-ddd-go/internal/user/types"
-	userworkflows "github.com/char5742/ecsite-ddd-go/internal/user/types/workflows"
+	userworkflows "github.com/char5742/ecsite-ddd-go/internal/user/workflows"
 )
 
-func NewRegisterUserUsecase(
-	taken userdomain.IsEmailTaken,
-	flow userworkflows.RegisterUser,
-) func(sharetypes.Command[usertypes.RegisterUserCommand]) ([]shareinterfaces.Event, error) {
+var NewRegisterUserUsecase RegisterUserUsecase = func(IsEmailTaken IsEmailTaken) func(context.Context, RegisterUser) ([]userworkflows.RegisterUserEvent, error) {
+	flow := userworkflows.NewRegisterUserWorkflow(
+		userworkflows.ValidateUserImpl,
+		userworkflows.RegistUserImpl,
+	)
+	return func(ctx context.Context, ru RegisterUser) ([]userworkflows.RegisterUserEvent, error) {
+		var ext userdomain.ExternalUserData
 
-	return func(cmd sharetypes.Command[usertypes.RegisterUserCommand]) ([]shareinterfaces.Event, error) {
-		// ユーザー登録のビジネスロジックを実装する
-		// ここでは、ユーザー登録の処理を行い、イベントを生成して返す
-		// 例えば、ユーザー登録成功イベントなど
-
-		validateUser := func(user userdomain.UnvalidatedUser) (*userdomain.ValidatedUser, error) {
-			selfValidatedUser, err := userdomain.NewSelfValidateUser(user)
-			if err != nil {
-				return nil, err
-			}
-			validatedUser, err := userdomain.NewValidatedUser(
-				taken,
-				*selfValidatedUser)
-			if err != nil {
-				return nil, err
-			}
-			return validatedUser, nil
+		cmd := userworkflows.RegisterUserCommand{
+			Context: ctx,
+			Data: userworkflows.RegisterUserCommandData{
+				UnvalidatedUser:  ru.toUnvalidatedUser(),
+				ExternalUserData: ext,
+			},
 		}
-		registUser := func(user userdomain.ValidatedUser) (*userdomain.RegistedUser, error) {
-
-			return &userdomain.RegistedUser{
-				ID:             user.ID,
-				FirstName:      user.FirstName,
-				LastName:       user.LastName,
-				Email:          userdomain.Email{user.UniqueEmail},
-				Password:       user.Password,
-				Zipcode:        user.Zipcode,
-				Prefecture:     user.Prefecture,
-				Municipalities: user.Municipalities,
-				Address:        user.Address,
-				Telephone:      user.Telephone,
-			}, nil
-		}
-
-		events, err := flow(validateUser, registUser)(cmd.Data.UnvalidatedUser)
+		events, result, err := flow(cmd)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("ユーザー登録に失敗しました: %w", err)
 		}
 
-		slice := make([]shareinterfaces.Event, 0, len(events))
-		for i, event := range events {
-			slice[i] = event
+		for result.HasRequest() {
+			for _, req := range result.ExternalDataRequests() {
+				switch v := req.(type) {
+				case userdomain.CheckIsEmailTakenRequest:
+					{
+						isTaken, err := IsEmailTaken(v.FormattedEmail)
+						if err != nil {
+							return nil, fmt.Errorf("メールの重複確認に失敗しました: %w", err)
+						}
+						ext = userdomain.ExternalUserData{
+							ExternalEmailData: userdomain.ExternalEmailData{
+								IsTaken: &isTaken,
+							},
+						}
+					}
+				}
+			}
+			// 再度、ユーザー登録コマンドを実行
+			cmd = userworkflows.RegisterUserCommand{
+				Context: ctx,
+				Data: userworkflows.RegisterUserCommandData{
+					UnvalidatedUser:  ru.toUnvalidatedUser(),
+					ExternalUserData: ext,
+				},
+			}
+			events, result, err = flow(cmd)
+			if err != nil {
+				return nil, fmt.Errorf("ユーザー登録に失敗しました: %w", err)
+			}
 		}
-		return slice, nil
+		return events, result.ValidationErrors()
 	}
+}
 
+func (ru RegisterUser) toUnvalidatedUser() userdomain.UnvalidatedUser {
+	return userdomain.UnvalidatedUser{
+		FirstName:      ru.FirstName,
+		LastName:       ru.LastName,
+		Email:          ru.Email,
+		Password:       ru.Password,
+		Zipcode:        ru.Zipcode,
+		Prefecture:     ru.Prefecture,
+		Municipalities: ru.Municipalities,
+		Address:        ru.Address,
+		Telephone:      ru.Telephone,
+	}
 }

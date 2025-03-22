@@ -3,6 +3,7 @@ package userdomain
 import (
 	identitytypes "github.com/char5742/ecsite-ddd-go/internal/identity/domain/types"
 	sharetypes "github.com/char5742/ecsite-ddd-go/internal/share/domain/types"
+	shareutils "github.com/char5742/ecsite-ddd-go/internal/share/utils"
 )
 
 // 性
@@ -47,48 +48,32 @@ type User struct {
 
 // 検証されていないユーザー
 type UnvalidatedUser struct {
-	// ユーザーの一意識別子
-	ID string `json:"id"`
 	// ユーザーの性
-	FirstName string `json:"first_name"`
+	FirstName string
 	// ユーザーの名
-	LastName string `json:"last_name"`
+	LastName string
 	// ユーザーのメールアドレス
-	Email string `json:"email"`
+	Email string
 	// ユーザーのパスワード
-	Password string `json:"password"`
+	Password string
 	// ユーザーの郵便番号
-	Zipcode string `json:"zipcode"`
+	Zipcode string
 	// ユーザーの都道府県
-	Prefecture string `json:"prefecture"`
+	Prefecture string
 	// ユーザーの市区町村
-	Municipalities string `json:"municipalities"`
+	Municipalities string
 	// ユーザーの住所
-	Address string `json:"address"`
+	Address string
 	// ユーザーの電話番号
-	Telephone string `json:"telephone"`
+	Telephone string
 }
 
-// 一次検証済みユーザー
-type SelfValidatedUser struct {
-	ID identitytypes.IdentityID
-	FirstName
-	LastName
-	FormattedEmail
-	Password
-	Zipcode
-	Prefecture
-	Municipalities
-	Address
-	Telephone
-}
-
-// 検証済みユーザー
+// 形式確認済みなユーザー
 type ValidatedUser struct {
 	ID identitytypes.IdentityID
 	FirstName
 	LastName
-	UniqueEmail
+	Email
 	Password
 	Zipcode
 	Prefecture
@@ -109,4 +94,12 @@ type RegistedUser struct {
 	Municipalities
 	Address
 	Telephone
+}
+
+type ToValidateUser func(
+	ExternalUserData,
+) func(UnvalidatedUser) (*ValidatedUser, shareutils.DomainValidationResult)
+
+type ExternalUserData struct {
+	ExternalEmailData
 }

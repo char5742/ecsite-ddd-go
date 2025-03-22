@@ -7,16 +7,12 @@ import (
 	identitytypes "github.com/char5742/ecsite-ddd-go/internal/identity/domain/types"
 	sharetypes "github.com/char5742/ecsite-ddd-go/internal/share/domain/types"
 	userdomain "github.com/char5742/ecsite-ddd-go/internal/user/domain"
-	usertypes "github.com/char5742/ecsite-ddd-go/internal/user/types"
+	userusecases "github.com/char5742/ecsite-ddd-go/internal/user/usecases"
 )
 
-type UserRepository interface {
-	FetchUser(userID identitytypes.IdentityID) (userdomain.User, error)
-}
-
-func NewFetchUserAggregate(
+func NewLoadUserAggregate(
 	ctx context.Context,
-) usertypes.FetchUserAggregate {
+) userusecases.LoadhUserAggregate {
 	return func(userID identitytypes.IdentityID) (userdomain.User, error) {
 
 		// TODO(char5742): ユーザーを取得する処理を実装
@@ -30,7 +26,7 @@ func NewFetchUserAggregate(
 			ID:             userID,
 			FirstName:      userdomain.FirstName("太郎"),
 			LastName:       userdomain.LastName("山田"),
-			Email:          userdomain.NewEmail("taro.yamada@example.com"),
+			Email:          userdomain.ReconstructEmail("taro.yamada@example.com"),
 			Zipcode:        userdomain.Zipcode("123-4567"),
 			Prefecture:     userdomain.Prefecture("東京都"),
 			Municipalities: userdomain.Municipalities("千代田区"),
@@ -46,7 +42,7 @@ func NewFetchUserAggregate(
 
 func NewIsEmailTaken(
 	ctx context.Context,
-) userdomain.IsEmailTaken {
+) userusecases.IsEmailTaken {
 	return func(email userdomain.FormattedEmail) (bool, error) {
 		// TODO(char5742): メールアドレスの重複チェックを実装
 		return false, nil
