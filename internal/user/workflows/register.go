@@ -14,11 +14,11 @@ var NewRegisterUserWorkflow RegisterUser = func(
 		if !res.IsComplete() {
 			return nil, res, nil
 		}
-		registed, err := registUser(*validated)
+		registered, err := registUser(*validated)
 		if err != nil {
 			return nil, nil, nil
 		}
-		return []RegisterUserEvent{&UserRegistered{RegistedUser: *registed}}, nil, nil
+		return []RegisterUserEvent{&UserRegistered{RegisteredUser: *registered}}, nil, nil
 	}
 }
 
@@ -31,7 +31,7 @@ var ValidateUserImpl ValidateUser = func(uu userdomain.UnvalidatedUser, ext user
 	return validated, result
 }
 
-var RegistUserImpl RegistUser = func(user userdomain.ValidatedUser) (*userdomain.RegistedUser, error) {
+var RegistUserImpl RegistUser = func(user userdomain.ValidatedUser) (*userdomain.RegisteredUser, error) {
 
-	return &userdomain.RegistedUser{}, nil
+	return &userdomain.RegisteredUser{}, nil
 }

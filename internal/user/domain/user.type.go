@@ -83,7 +83,7 @@ type ValidatedUser struct {
 }
 
 // 登録されたユーザー
-type RegistedUser struct {
+type RegisteredUser struct {
 	ID identitytypes.IdentityID
 	FirstName
 	LastName
@@ -100,6 +100,7 @@ type ToValidateUser func(
 	ExternalUserData,
 ) func(UnvalidatedUser) (*ValidatedUser, shareerrs.DomainValidationResult)
 
+// バリデーションに必要な外部データ
 type ExternalUserData struct {
 	ExternalEmailData
 }

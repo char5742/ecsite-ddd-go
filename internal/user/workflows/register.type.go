@@ -23,7 +23,7 @@ type RegisterUser func(ValidateUser, RegistUser) RegisterUserWorkflow
 type ValidateUser func(userdomain.UnvalidatedUser, userdomain.ExternalUserData) (*userdomain.ValidatedUser, shareerrs.DomainValidationResult)
 
 // ユーザーの登録ステップ
-type RegistUser func(userdomain.ValidatedUser) (*userdomain.RegistedUser, error)
+type RegistUser func(userdomain.ValidatedUser) (*userdomain.RegisteredUser, error)
 
 type RegisterUserEvent interface {
 	registerUserEvent()
@@ -32,7 +32,7 @@ type RegisterUserEvent interface {
 
 // ユーザー登録イベント
 type UserRegistered struct {
-	RegistedUser userdomain.RegistedUser
+	RegisteredUser userdomain.RegisteredUser
 }
 
 func (UserRegistered) registerUserEvent() {}
