@@ -1,18 +1,33 @@
 package userdomain
 
-// メールアドレス
-type Email struct{ UniqueEmail }
+import shareutils "github.com/char5742/ecsite-ddd-go/internal/share/utils"
+
+type Email interface {
+	UniqueEmail
+	FormattedEmail
+}
 
 // 適切な形式のメールアドレス
-type FormattedEmail struct{ string }
+type FormattedEmail interface {
+	isFormattedEmail()
+	Value() string
+}
 
 // 重複していないメールアドレス
-type UniqueEmail struct{ FormattedEmail }
+type UniqueEmail interface {
+	isUniqueEmail()
+	Value() string
+}
 
 // メールアドレスを適切な形式であると保証する関数
-type CheckEmailFormat func(string) (FormattedEmail, error)
+type toFormattedEmail func(string) (FormattedEmail, error)
 
 // メールアドレスの重複を検証する関数
-type CheckEmailUniqueness func(string) (UniqueEmail, error)
+type toUniqueEmail func(email FormattedEmail, isTaken bool) (UniqueEmail, error)
 
-type ValidateEmail func(CheckEmailFormat, CheckEmailUniqueness) func(string) (Email, error)
+type ExternalEmailData struct {
+	// 使用されているかどうか
+	IsTaken *bool
+}
+
+type ToValidateEmail func(toFormattedEmail, toUniqueEmail, ExternalEmailData) func(string) (Email, shareutils.DomainValidationResult)

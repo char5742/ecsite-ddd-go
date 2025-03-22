@@ -9,9 +9,12 @@ import (
 // ユーザー表示情報取得
 type GetUserInfo func(UserToInfo) GetUserInfoWorkflow
 
+// ユーザー表示情報取得クエリ
+type GetUserInfoQuery sharetypes.Query[userdomain.User]
+
 // ユーザー情報取得処理ワークフロー
 type GetUserInfoWorkflow func(
-	userdomain.User,
+	GetUserInfoQuery,
 ) (*UserInfo, error)
 
 // ユーザーエンティティをユーザー表示情報への変換ステップ
