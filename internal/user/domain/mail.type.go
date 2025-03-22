@@ -1,6 +1,6 @@
 package userdomain
 
-import shareutils "github.com/char5742/ecsite-ddd-go/internal/share/utils"
+import shareerrs "github.com/char5742/ecsite-ddd-go/internal/share/domain/errs"
 
 type Email interface {
 	UniqueEmail
@@ -30,4 +30,4 @@ type ExternalEmailData struct {
 	IsTaken *bool
 }
 
-type ToValidateEmail func(toFormattedEmail, toUniqueEmail, ExternalEmailData) func(string) (Email, shareutils.DomainValidationResult)
+type ToValidateEmail func(toFormattedEmail, toUniqueEmail, ExternalEmailData) func(string) (Email, shareerrs.DomainValidationResult)

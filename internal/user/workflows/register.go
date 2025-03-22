@@ -1,7 +1,7 @@
 package userworkflows
 
 import (
-	shareutils "github.com/char5742/ecsite-ddd-go/internal/share/utils"
+	shareerrs "github.com/char5742/ecsite-ddd-go/internal/share/domain/errs"
 	userdomain "github.com/char5742/ecsite-ddd-go/internal/user/domain"
 )
 
@@ -9,7 +9,7 @@ var NewRegisterUserWorkflow RegisterUser = func(
 	validateUser ValidateUser,
 	registUser RegistUser,
 ) RegisterUserWorkflow {
-	return func(cmd RegisterUserCommand) ([]RegisterUserEvent, shareutils.DomainValidationResult, error) {
+	return func(cmd RegisterUserCommand) ([]RegisterUserEvent, shareerrs.DomainValidationResult, error) {
 		validated, res := validateUser(cmd.Data.UnvalidatedUser, cmd.Data.ExternalUserData)
 		if !res.IsComplete() {
 			return nil, res, nil
@@ -22,8 +22,8 @@ var NewRegisterUserWorkflow RegisterUser = func(
 	}
 }
 
-var ValidateUserImpl ValidateUser = func(uu userdomain.UnvalidatedUser, ext userdomain.ExternalUserData) (*userdomain.ValidatedUser, shareutils.DomainValidationResult) {
-	var result shareutils.DomainValidationResult
+var ValidateUserImpl ValidateUser = func(uu userdomain.UnvalidatedUser, ext userdomain.ExternalUserData) (*userdomain.ValidatedUser, shareerrs.DomainValidationResult) {
+	var result shareerrs.DomainValidationResult
 	toValidateUser := userdomain.ToValidateUserImpl(ext)
 	validated, res := toValidateUser(uu)
 	result.Merge(res)

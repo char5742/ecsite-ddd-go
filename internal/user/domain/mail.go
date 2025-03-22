@@ -3,7 +3,7 @@ package userdomain
 import (
 	"errors"
 
-	shareutils "github.com/char5742/ecsite-ddd-go/internal/share/utils"
+	shareerrs "github.com/char5742/ecsite-ddd-go/internal/share/domain/errs"
 )
 
 type userEmail struct {
@@ -25,21 +25,21 @@ var toValidateEmailImpl ToValidateEmail = func(
 	tfef toFormattedEmail,
 	tuef toUniqueEmail,
 	ext ExternalEmailData,
-) func(string) (Email, shareutils.DomainValidationResult) {
-	return func(email string) (Email, shareutils.DomainValidationResult) {
-		var requests []shareutils.ExternalDataRequest
-		var errs shareutils.ValidationErrors
+) func(string) (Email, shareerrs.DomainValidationResult) {
+	return func(email string) (Email, shareerrs.DomainValidationResult) {
+		var requests []shareerrs.ExternalDataRequest
+		var errs shareerrs.ValidationErrors
 		formattedEmail, err := tfef(email)
 		if err != nil {
 			errs = errs.Add("email", err)
-			return nil, shareutils.NewDomainValidationResult(
+			return nil, shareerrs.NewDomainValidationResult(
 				nil,
 				errs,
 			)
 		}
 		if ext.IsTaken == nil {
 			requests = append(requests, CheckIsEmailTakenRequest{formattedEmail})
-			return nil, shareutils.NewDomainValidationResult(
+			return nil, shareerrs.NewDomainValidationResult(
 				requests,
 				errs,
 			)
@@ -47,7 +47,7 @@ var toValidateEmailImpl ToValidateEmail = func(
 
 		uniqueEmail, err := tuef(formattedEmail, *ext.IsTaken)
 		if err != nil {
-			return nil, shareutils.NewDomainValidationResult(
+			return nil, shareerrs.NewDomainValidationResult(
 				nil,
 				errs.Add("email", err),
 			)

@@ -1,15 +1,15 @@
 package userdomain
 
-import shareutils "github.com/char5742/ecsite-ddd-go/internal/share/utils"
+import shareerrs "github.com/char5742/ecsite-ddd-go/internal/share/domain/errs"
 
-var ToValidateUserImpl ToValidateUser = func(ext ExternalUserData) func(UnvalidatedUser) (*ValidatedUser, shareutils.DomainValidationResult) {
+var ToValidateUserImpl ToValidateUser = func(ext ExternalUserData) func(UnvalidatedUser) (*ValidatedUser, shareerrs.DomainValidationResult) {
 	validateEmail := toValidateEmailImpl(
 		toFormattedEmailImpl,
 		toUniqueEmailImpl,
 		ext.ExternalEmailData,
 	)
-	return func(user UnvalidatedUser) (*ValidatedUser, shareutils.DomainValidationResult) {
-		var result shareutils.DomainValidationResult
+	return func(user UnvalidatedUser) (*ValidatedUser, shareerrs.DomainValidationResult) {
+		var result shareerrs.DomainValidationResult
 		email, res := validateEmail(user.Email)
 		result = result.Merge(res)
 

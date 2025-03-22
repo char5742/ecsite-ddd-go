@@ -2,8 +2,8 @@ package userdomain
 
 import (
 	identitytypes "github.com/char5742/ecsite-ddd-go/internal/identity/domain/types"
+	shareerrs "github.com/char5742/ecsite-ddd-go/internal/share/domain/errs"
 	sharetypes "github.com/char5742/ecsite-ddd-go/internal/share/domain/types"
-	shareutils "github.com/char5742/ecsite-ddd-go/internal/share/utils"
 )
 
 // 性
@@ -98,7 +98,7 @@ type RegistedUser struct {
 
 type ToValidateUser func(
 	ExternalUserData,
-) func(UnvalidatedUser) (*ValidatedUser, shareutils.DomainValidationResult)
+) func(UnvalidatedUser) (*ValidatedUser, shareerrs.DomainValidationResult)
 
 type ExternalUserData struct {
 	ExternalEmailData

@@ -1,8 +1,8 @@
 package userworkflows
 
 import (
+	shareerrs "github.com/char5742/ecsite-ddd-go/internal/share/domain/errs"
 	sharetypes "github.com/char5742/ecsite-ddd-go/internal/share/domain/types"
-	shareutils "github.com/char5742/ecsite-ddd-go/internal/share/utils"
 	userdomain "github.com/char5742/ecsite-ddd-go/internal/user/domain"
 )
 
@@ -14,13 +14,13 @@ type RegisterUserCommandData struct {
 }
 
 // ユーザー登録ワークフロー
-type RegisterUserWorkflow func(RegisterUserCommand) ([]RegisterUserEvent, shareutils.DomainValidationResult, error)
+type RegisterUserWorkflow func(RegisterUserCommand) ([]RegisterUserEvent, shareerrs.DomainValidationResult, error)
 
 // ユーザー登録
 type RegisterUser func(ValidateUser, RegistUser) RegisterUserWorkflow
 
 // ユーザーのローカル検証ステップ
-type ValidateUser func(userdomain.UnvalidatedUser, userdomain.ExternalUserData) (*userdomain.ValidatedUser, shareutils.DomainValidationResult)
+type ValidateUser func(userdomain.UnvalidatedUser, userdomain.ExternalUserData) (*userdomain.ValidatedUser, shareerrs.DomainValidationResult)
 
 // ユーザーの登録ステップ
 type RegistUser func(userdomain.ValidatedUser) (*userdomain.RegistedUser, error)
