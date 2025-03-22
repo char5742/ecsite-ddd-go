@@ -26,8 +26,7 @@ var ValidateUserImpl ValidateUser = func(uu userdomain.UnvalidatedUser, ext user
 	var result shareerrs.DomainValidationResult
 	toValidateUser := userdomain.ToValidateUserImpl(ext)
 	validated, res := toValidateUser(uu)
-	result.Merge(res)
-
+	result = result.Merge(res)
 	return validated, result
 }
 
